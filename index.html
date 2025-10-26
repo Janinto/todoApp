@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>한경 머니툴즈 - 프로토타입</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f2f2f7;
+            overflow-x: hidden;
+        }
+
+        /* iOS 스타일 네비게이션 바 */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-title {
+            font-size: 34px;
+            font-weight: 700;
+            color: #000;
+            letter-spacing: -0.5px;
+        }
+
+        /* 컨테이너 */
+        .container {
+            max-width: 428px;
+            margin: 0 auto;
+            background: #f2f2f7;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* 화면별 컨테이너 */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 카드 스타일 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 20px;
+        }
+
+        .calculator-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .calculator-card:active {
+            transform: scale(0.97);
+            background: #f8f8f8;
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 4px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: #8e8e93;
+        }
+
+        /* 입력 폼 스타일 */
+        .form-container {
+            padding: 20px;
+        }
+
+        .form-group {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .form-label {
+            font-size: 13px;
+            color: #8e8e93;
+            margin-bottom: 8px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            border: none;
+            font-size: 17px;
+            padding: 12px 0;
+            color: #000;
+            font-weight: 500;
+            background: transparent;
+        }
+
+        .form-input:focus {
+            outline: none;
+        }
+
+        .input-unit {
+            font-size: 17px;
+            color: #8e8e93;
+            margin-left: 8px;
+        }
+
+        /* iOS 스타일 버튼 */
+        .btn-primary {
+            width: calc(100% - 40px);
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+            background: #0051D5;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #007AFF;
+            border: 1px solid #007AFF;
+        }
+
+        /* 결과 화면 */
+        .result-container {
+            padding: 20px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 28px;
+            color: white;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .result-label {
+            font-size: 15px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -1px;
+        }
+
+        .result-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* AI 해설 카드 */
+        .ai-insight {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .ai-icon {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+
+        .ai-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .ai-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #3c3c43;
+        }
+
+        /* 관련 기사 */
+        .article-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .article-card:active {
+            transform: scale(0.98);
+            background: #f8f8f8;
+        }
+
+        .article-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .article-date {
+            font-size: 13px;
+            color: #8e8e93;
+        }
+
+        /* 세그먼트 컨트롤 */
+        .segment-control {
+            display: flex;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            padding: 2px;
+            margin: 20px;
+        }
+
+        .segment-button {
+            flex: 1;
+            padding: 8px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .segment-button.active {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 하단 탭바 */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            padding: 8px 0 20px 0;
+            max-width: 428px;
+            margin: 0 auto;
+        }
+
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .tab-label {
+            font-size: 11px;
+            color: #8e8e93;
+            font-weight: 500;
+        }
+
+        .tab-item.active .tab-icon {
+            color: #007AFF;
+        }
+
+        .tab-item.active .tab-label {
+            color: #007AFF;
+        }
+
+        /* 뒤로가기 버튼 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #007AFF;
+            font-size: 17px;
+            cursor: pointer;
+            padding: 8px 0;
+            margin-bottom: 12px;
+        }
+
+        .back-button:active {
+            opacity: 0.5;
+        }
+
+        /* 이력 화면 */
+        .history-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .history-type {
+            font-size: 13px;
+            color: #007AFF;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .history-summary {
+            font-size: 15px;
+            color: #000;
+            margin-bottom: 4px;
+        }
+
+        .history-date {
+            font-size: 13px;
+            color: #8e8e93;
+        }
+
+        /* 반응형 */
+        @media (max-width: 428px) {
+            .container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 홈 화면 -->
+        <div class="screen active" id="home-screen">
+            <div class="navbar">
+                <div class="navbar-title">머니툴즈</div>
+            </div>
+
+            <div class="segment-control">
+                <button class="segment-button active">전체</button>
+                <button class="segment-button">투자</button>
+                <button class="segment-button">대출</button>
+                <button class="segment-button">세금</button>
+            </div>
+
+            <div class="card-grid">
+                <div class="calculator-card" onclick="showCalculator()">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">복리 계산기</div>
+                    <div class="card-subtitle">미래 자산 예측</div>
+                </div>
+
+                <div class="calculator-card">
+                    <div class="card-icon">🏦</div>
+                    <div class="card-title">대출 이자</div>
+                    <div class="card-subtitle">월 상환액 계산</div>
+                </div>
+
+                <div class="calculator-card">
+                    <div class="card-icon">📈</div>
+                    <div class="card-title">주식 수익률</div>
+                    <div class="card-subtitle">손익 분석</div>
+                </div>
+
+                <div class="calculator-card">
+                    <div class="card-icon">💰</div>
+                    <div class="card-title">세금 계산</div>
+                    <div class="card-subtitle">양도세/종소세</div>
+                </div>
+
+                <div class="calculator-card">
+                    <div class="card-icon">🏠</div>
+                    <div class="card-title">부동산 계산</div>
+                    <div class="card-subtitle">취득세/등록세</div>
+                </div>
+
+                <div class="calculator-card">
+                    <div class="card-icon">💳</div>
+                    <div class="card-title">연금 계산</div>
+                    <div class="card-subtitle">노후 준비</div>
+                </div>
+
+                <div class="calculator-card">
+                    <div class="card-icon">💵</div>
+                    <div class="card-title">환율 계산</div>
+                    <div class="card-subtitle">실시간 환전</div>
+                </div>
+
+                <div class="calculator-card">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-title">목표 자산</div>
+                    <div class="card-subtitle">달성 시뮬레이션</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 계산기 입력 화면 -->
+        <div class="screen" id="calculator-screen">
+            <div class="navbar">
+                <button class="back-button" onclick="showHome()">
+                    ← 뒤로
+                </button>
+                <div class="navbar-title">복리 계산기</div>
+            </div>
+
+            <div class="form-container">
+                <div class="form-group">
+                    <label class="form-label">초기 금액</label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" class="form-input" id="principal" placeholder="0" value="10000000">
+                        <span class="input-unit">원</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">월 적립금</label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" class="form-input" id="monthly" placeholder="0" value="500000">
+                        <span class="input-unit">원</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">연 수익률</label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" class="form-input" id="rate" placeholder="0" value="5">
+                        <span class="input-unit">%</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">투자 기간</label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" class="form-input" id="years" placeholder="0" value="10">
+                        <span class="input-unit">년</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="showResult()">계산하기</button>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div class="screen" id="result-screen">
+            <div class="navbar">
+                <button class="back-button" onclick="showCalculator()">
+                    ← 뒤로
+                </button>
+                <div class="navbar-title">계산 결과</div>
+            </div>
+
+            <div class="result-container">
+                <div class="result-card">
+                    <div class="result-label">10년 후 예상 자산</div>
+                    <div class="result-value" id="result-value">7,831만원</div>
+                    <div class="result-subtitle">총 수익: +1,831만원 (30.6%)</div>
+                </div>
+
+                <div class="ai-insight">
+                    <div class="ai-header">
+                        <div class="ai-icon">🤖</div>
+                        <div class="ai-title">AI 재무 분석</div>
+                    </div>
+                    <div class="ai-content">
+                        입력하신 연 5% 수익률은 안정적인 투자 기준입니다. 
+                        월 50만원 적립을 꾸준히 유지하신다면, 10년 후 약 7,831만원을 모을 수 있습니다. 
+                        <br><br>
+                        💡 <strong>추천 전략:</strong> 연 6% 수익률 달성 시 최종 자산은 8,279만원으로 448만원 더 증가합니다.
+                    </div>
+                </div>
+
+                <div style="padding: 0 20px 20px;">
+                    <div style="font-size: 17px; font-weight: 600; margin-bottom: 12px; color: #000;">
+                        관련 한경 뉴스
+                    </div>
+
+                    <div class="article-card">
+                        <div class="article-title">
+                            "5% 수익도 어려운 시대"…안전자산 어디에 투자할까
+                        </div>
+                        <div class="article-date">2시간 전 · 한국경제</div>
+                    </div>
+
+                    <div class="article-card">
+                        <div class="article-title">
+                            복리의 마법 vs 인플레이션…장기 투자 성공 전략
+                        </div>
+                        <div class="article-date">5시간 전 · 한국경제</div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="showHome()">홈으로</button>
+            </div>
+        </div>
+
+        <!-- 이력 화면 -->
+        <div class="screen" id="history-screen">
+            <div class="navbar">
+                <div class="navbar-title">이력</div>
+            </div>
+
+            <div class="form-container">
+                <div class="history-item">
+                    <div class="history-type">복리 계산</div>
+                    <div class="history-summary">원금 1,000만원 → 10년 후 7,831만원</div>
+                    <div class="history-date">방금 전</div>
+                </div>
+
+                <div class="history-item">
+                    <div class="history-type">대출 이자</div>
+                    <div class="history-summary">3억원 대출, 월 190만원 상환</div>
+                    <div class="history-date">2일 전</div>
+                </div>
+
+                <div class="history-item">
+                    <div class="history-type">주식 수익률</div>
+                    <div class="history-summary">삼성전자 100주, +12% 수익</div>
+                    <div class="history-date">1주일 전</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 탭바 -->
+        <div class="tab-bar">
+            <div class="tab-item active" onclick="showScreen('home-screen', this)">
+                <div class="tab-icon">🏠</div>
+                <div class="tab-label">홈</div>
+            </div>
+            <div class="tab-item" onclick="showScreen('history-screen', this)">
+                <div class="tab-icon">📋</div>
+                <div class="tab-label">이력</div>
+            </div>
+            <div class="tab-item">
+                <div class="tab-icon">📰</div>
+                <div class="tab-label">뉴스</div>
+            </div>
+            <div class="tab-item">
+                <div class="tab-icon">⚙️</div>
+                <div class="tab-label">설정</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenId, tabElement) {
+            // 모든 화면 숨기기
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+
+            // 선택한 화면 표시
+            document.getElementById(screenId).classList.add('active');
+
+            // 탭 활성화
+            if (tabElement) {
+                document.querySelectorAll('.tab-item').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                tabElement.classList.add('active');
+            }
+        }
+
+        function showCalculator() {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById('calculator-screen').classList.add('active');
+        }
+
+        function showResult() {
+            // 실제 계산 로직
+            const principal = parseFloat(document.getElementById('principal').value) || 0;
+            const monthly = parseFloat(document.getElementById('monthly').value) || 0;
+            const rate = parseFloat(document.getElementById('rate').value) / 100 || 0;
+            const years = parseFloat(document.getElementById('years').value) || 0;
+
+            const months = years * 12;
+            const monthlyRate = rate / 12;
+
+            let futureValue = principal * Math.pow(1 + monthlyRate, months);
+            
+            for (let i = 0; i < months; i++) {
+                futureValue += monthly * Math.pow(1 + monthlyRate, months - i - 1);
+            }
+
+            const totalInvested = principal + (monthly * months);
+            const profit = futureValue - totalInvested;
+            const profitRate = (profit / totalInvested * 100).toFixed(1);
+
+            // 결과 표시
+            document.getElementById('result-value').textContent = 
+                Math.round(futureValue / 10000).toLocaleString() + '만원';
+
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById('result-screen').classList.add('active');
+        }
+
+        function showHome() {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById('home-screen').classList.add('active');
+        }
+    </script>
+</body>
+</html>
